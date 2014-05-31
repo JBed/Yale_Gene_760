@@ -1,0 +1,41 @@
+# Heat maps made by Parker Sulkowski 
+#Making the Heatmap for all genes showing differential expression and well as histon marks and SRF binding
+setwd("/Users/ParkerSulkowski/Documents/760/Final/GMvK562")
+library(cummeRbund)
+cuff<-readCufflinks() #this creates the dataabse of files to work with using CummRbund
+cuff  # this is step of setting up the data is important for being able to read the data later, its explained in section 3 of the CummeRbund manual 
+
+A = read.table("all_up_genes.txt") #read in the file with all the genes upregualted in one of the two cell lines
+gene_shortname <- A[,1] #assign the names to a vecor
+gene_shortname # print out to make sure it looks good 
+myGenes<-getGenes(cuff,gene_shortname) # assign teh genes were interested in to the expression data in the cuffdiff output 
+myGenes #check to make sure its good 
+head(fpkm(myGenes)) # another check 
+
+h<-csHeatmap(myGenes,cluster='both') #make the heat map
+h # print the heat map
+
+#Making the Heatmap for the genes that are down regulated in SRF shRNA knockdown
+#first step was to separate out all the significant differential expression used excel
+#then take all the genes with Log2 differential expression >= 1
+#save these genes in a text file called 2folddowninshRNA.txt
+
+setwd("/Users/ParkerSulkowski/Documents/760/Final/all3")
+library(cummeRbund)
+cuff<-readCufflinks() #this creates the dataabse of files to work with using CummRbund
+cuff  # this is step of setting up the data is important for being able to read 
+B= read.table("2folddowninshRNA.txt")#read in the data 
+genes_down <- B[,1]  #assign gene neames to vector
+genes_down #check to make sure all the gene names are there 
+get_genes_down <- getGenes (cuff,genes_down) # use the get Genes function to assing the differential expression data to genes of interest
+head(fpkm(get_genes_down)) #check to make sure its assigned
+hd <-csHeatmap(get_genes_down,cluster='both') #assign heat map and make heat map
+hd # print out the heat map
+
+setwd("/Users/ParkerSulkowski/Documents/760/Final/all3")
+library(cummeRbund)
+cuff<-readCufflinks() #this creates the dataabse of files to work with using CummRbund
+cuff  # this is step of setting up the data is important for being able to read 
+s<-csScatterMatrix(genes(cuff))  #cummRbund line for scatter matrix, using the default setting and plotting all the genes expression values 
+s # displays the scatter plot 
+

@@ -1,0 +1,117 @@
+Get intersection of chip-seq peak files:
+
+1.  K562
+intersectBed -a /home2/nr267/Final_Project/K562_H3k4me3.bed -b /home2/cl657/Final/PeakFile/K562_PBSDukeDNaseSeq.pk > /home2/cl657/Final/PeakFile/K562_H3k4me3_DHS.bed
+
+intersectBed -a /home2/nr267/Final_Project/K562_H3k27ac.bed -b /home2/cl657/Final/PeakFile/K562_PBSDukeDNaseSeq.pk > /home2/cl657/Final/PeakFile/K562_H3k27ac_DHS.bed
+
+SRF related active region:
+intersectBed -a /home2/nr267/Final_Project/K562_Srf.bed -b /home2/cl657/Final/PeakFile/K562_H3k4me3_DHS.bed | intersectBed -a stdin -b /home2/cl657/Final/PeakFile/K562_H3k27ac_DHS.bed > /home2/cl657/Final/intersect/K562_Srf_DHS_His.bed
+
+2. GM12878 prepare
+intersectBed -a /home2/gm359/Final_Project/peak_GM_SRF_1_peaks.bed -b /home2/gm359/Final_Project/peak_GM_SRF_2_peaks.bed > /home2/cl657/Final/PeakFile/GM12878_Srf.bed
+intersectBed -a /home2/gm359/Final_Project/peak_GM_H3K4_1_peaks.bed -b /home2/gm359/Final_Project/peak_GM_H3K4_2_peaks.bed > /home2/cl657/Final/PeakFile/GM12878_H3k4me3.bed
+intersectBed -a /home2/gm359/Final_Project/peak_GM_H3K27_1_peaks.bed -b /home2/gm359/Final_Project/peak_GM_H3K27_2_peaks.bed > /home2/cl657/Final/PeakFile/GM12878_H3k27ac.bed
+3. GM12878
+intersectBed -a /home2/cl657/Final/PeakFile/GM12878_H3k4me3.bed -b /home2/cl657/Final/PeakFile/GM12878DukeDNaseSeq.pk > /home2/cl657/Final/PeakFile/GM12878_H3k4me3_DHS.bed
+
+intersectBed -a /home2/cl657/Final/PeakFile/GM12878_H3k27ac.bed -b /home2/cl657/Final/PeakFile/GM12878DukeDNaseSeq.pk > /home2/cl657/Final/PeakFile/GM12878_H3k27ac_DHS.bed
+
+SRF related active region:
+intersectBed -a /home2/cl657/Final/PeakFile/GM12878_Srf.bed -b /home2/cl657/Final/PeakFile/GM12878_H3k4me3_DHS.bed | intersectBed -a stdin -b /home2/cl657/Final/PeakFile/GM12878_H3k27ac_DHS.bed > /home2/cl657/Final/intersect/GM12878_Srf_DHS_His.bed
+
+4. K562 and GM12878 unique peaks
+
+intersectBed -v -a /home2/cl657/Final/intersect/K562_Srf_DHS_His.bed -b /home2/cl657/Final/intersect/GM12878_Srf_DHS_His.bed > /home2/cl657/Final/intersect/K562_unique_peaks.bed
+
+intersectBed -v -a /home2/cl657/Final/intersect/GM12878_Srf_DHS_His.bed -b /home2/cl657/Final/intersect/K562_Srf_DHS_His.bed > /home2/cl657/Final/intersect/GM12878_unique_peaks.bed
+
+5. K562 and GM12878 shared peaks
+
+intersectBed -a /home2/cl657/Final/intersect/K562_Srf_DHS_His.bed -b /home2/cl657/Final/intersect/GM12878_Srf_DHS_His.bed > /home2/cl657/Final/intersect/Shared_peaks.bed
+
+===================================================
+
+Motif analysis .fa preparation
+
+Get fasta files:
+fastaFromBed -fi /home2/cl657/Final/hg19.GRCH37.fa -bed /home2/cl657/Final/intersect/K562_Srf_DHS_His.bed -fo /home2/cl657/Final/intersect/K562_Srf_DHS_His.fa
+
+fastaFromBed -fi /home2/cl657/Final/hg19.GRCH37.fa -bed /home2/cl657/Final/intersect/GM12878_Srf_DHS_His.bed -fo /home2/cl657/Final/intersect/GM12878_Srf_DHS_His.fa
+
+fastaFromBed -fi /home2/cl657/Final/hg19.GRCH37.fa -bed /home2/cl657/Final/intersect/K562_unique_peaks.bed -fo /home2/cl657/Final/intersect/K562_unique_peaks.fa
+
+fastaFromBed -fi /home2/cl657/Final/hg19.GRCH37.fa -bed /home2/cl657/Final/intersect/GM12878_unique_peaks.bed -fo /home2/cl657/Final/intersect/GM12878_unique_peaks.fa
+
+fastaFromBed -fi /home2/cl657/Final/hg19.GRCH37.fa -bed /home2/cl657/Final/intersect/Shared_peaks.bed -fo /home2/cl657/Final/intersect/Shared_peaks.fa
+
+=============================================================
+
+Assign promoters to genes:
+
+Get promoter regions of GENECODEv19 from ucsc genome table browser:
+
+-u write original entry from a once
+
+intersectBed -u -a /home2/cl657/Final/UCSCgenes.txt -b /home2/cl657/Final/intersect/K562_Srf_DHS_His.bed > /home2/cl657/Final/intersect/K562_promoters_SRF_bind.bed
+
+intersectBed -u -a /home2/cl657/Final/UCSCgenes.txt -b /home2/cl657/Final/intersect/GM12878_Srf_DHS_His.bed > /home2/cl657/Final/intersect/GM12878_promoters_SRF_bind.bed
+
+-v only report those entries in A that have no overlap in B
+K562 unique promoters
+intersectBed -v -a /home2/cl657/Final/intersect/K562_promoters_SRF_bind.bed -b /home2/cl657/Final/intersect/GM12878_promoters_SRF_bind.bed > /home2/cl657/Final/intersect/K562_unique_promoters.bed
+
+GM12878 unique promoters
+intersectBed -v -a /home2/cl657/Final/intersect/GM12878_promoters_SRF_bind.bed -b /home2/cl657/Final/intersect/K562_promoters_SRF_bind.bed > /home2/cl657/Final/intersect/GM12878_unique_promoters.bed
+
+K562 and GM12878 shared promoters
+intersectBed -a /home2/cl657/Final/intersect/K562_promoters_SRF_bind.bed -b /home2/cl657/Final/intersect/GM12878_promoters_SRF_bind.bed > Shared_promoters.bed
+
+extract the list of genes from the bed file with perl; put in DAVID for functional analysis.
+
+=========================================================
+
+MEME motif finding
+
+To see how much percentile of the binding can be explained by the motif, use FIMO. SRF pfm table can be get from JASPAR database. (/home2/cl657/Final/Srf_motif.meme) Binding sites with a motif pattern can be identified. (.fa file /home2/cl657/Final/intersect/K562_Srf_DHS_His.fa)
+
+FIMO output - 
+
+K562
+http://nbcr-222.ucsd.edu/meme_4.9.1/cgi-bin/querystatus.cgi?jobid=appFIMO_4.9.11399206970186-271721921&service=FIMO
+1147 (out of 10382) motif occurrences for srf motif. 
+
+K562-unique-peaks
+http://nbcr-222.ucsd.edu/opal-jobs/appFIMO_4.9.11399263492382-66579997/fimo.html
+354 (out of 7720) motif occurrences for srf motif
+
+GM12878
+http://nbcr-222.ucsd.edu/opal-jobs/appFIMO_4.9.11399261434350-933482044/fimo.html
+2055 (out of 25281) motif occurrences for srf motif
+
+GM12878-unique-peaks
+http://nbcr-222.ucsd.edu/opal-jobs/appFIMO_4.9.11399263496129-430201054/fimo.html
+1185 (out of 9725) motif occurrences for srf motif
+
+K562-GM12878 shared
+http://nbcr-222.ucsd.edu/opal-jobs/appFIMO_4.9.11399301280631828411823/fimo.html
+673 (out of 7161) motif occurrences for srf motif
+
+MEME-chip de novo motif finding
+K562
+http://nbcr-222.ucsd.edu/meme_4.9.1/cgi-bin/querystatus.cgi?jobid=appMEMECHIP_4.9.11399207389737-1021359325&service=MEMECHIP
+
+GM12878
+http://nbcr-222.ucsd.edu/meme_4.9.1/cgi-bin/querystatus.cgi?jobid=appMEMECHIP_4.9.11399261474818-54581006&service=MEMECHIP
+
+K562-unique-peaks
+http://nbcr-222.ucsd.edu/meme_4.9.1/cgi-bin/querystatus.cgi?jobid=appMEMECHIP_4.9.11399263736786-1147594821&service=MEMECHIP
+
+GM12878-unique-peaks
+http://nbcr-222.ucsd.edu/meme_4.9.1/cgi-bin/querystatus.cgi?jobid=appMEMECHIP_4.9.11399263767480-688006435&service=MEMECHIP
+
+K562-GM12878 shared peaks
+http://nbcr-222.ucsd.edu/meme_4.9.1/cgi-bin/querystatus.cgi?jobid=appMEMECHIP_4.9.113993013326971236726767&service=MEMECHIP
+
+
+

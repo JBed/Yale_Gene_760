@@ -1,0 +1,43 @@
+
+# RNA Seq analysis commands by Parker Sulkowski 
+- First Step is to use the SRA toolkit to convert the .sra files into .fastq files 
+
+cd /home2/pls32/Project/RNA_Seq_DATA; source /home2/pls32/.bashrc; fastq-dump -B -O /Project/RNA_Seq_DATA/K562UninducedRep1.fastq
+cd /home2/pls32/Project/RNA_Seq_DATA; source /home2/pls32/.bashrc; fastq-dump -B -O /Project/RNA_Seq_DATA/K562UninducedRep2.fastq
+cd /home2/pls32/Project/RNA_Seq_DATA; source /home2/pls32/.bashrc; fastq-dump -B -O /Project/RNA_Seq_DATA/GM12878Rep1.fastq
+cd /home2/pls32/Project/RNA_Seq_DATA; source /home2/pls32/.bashrc; fastq-dump -B -O /Project/RNA_Seq_DATA/GM12878Rep2.fastq
+cd /home2/pls32/Project/RNA_Seq_DATA; source /home2/pls32/.bashrc; fastq-dump -B -O /Project/RNA_Seq_DATA/K562shRNARep1.fastq
+cd /home2/pls32/Project/RNA_Seq_DATA; source /home2/pls32/.bashrc; fastq-dump -B -O /Project/RNA_Seq_DATA/K562shRNARep2.fastq
+
+-> submitted the preceding text file to simpleque to do this 
+
+After generating the fastq files the next step was to run the tophat aligner on these
+initially only one sample was run to generate the transcriptome index and then the rest were run 
+
+cd /home2/pls32/Project/RNA_Seq_DATA; source /home2/pls32/.bashrc; tophat -p 4 -G /home2/pls32/Project/RNA_Seq_DATA/hg19_genes.gtf --transcriptome-index=transcriptome_data/known -o K562UninducedRep1_output /home2/pls32/DATA/PS2/hg19 /home2/pls32/Project/K562UninducedRep1.fastq
+
+cd /home2/pls32/Project/RNA_Seq_DATA; source /home2/pls32/.bashrc; tophat -p 4 -G /home2/pls32/Project/RNA_Seq_DATA/hg19_genes.gtf --transcriptome-index=transcriptome_data/known -o K562UninducedRep2_output /home2/pls32/DATA/PS2/hg19 /home2/pls32/Project/K562UninducedRep2.fastq
+cd /home2/pls32/Project/RNA_Seq_DATA; source /home2/pls32/.bashrc; tophat -p 4 -G /home2/pls32/Project/RNA_Seq_DATA/hg19_genes.gtf --transcriptome-index=transcriptome_data/known -o K562shRNARep1_output /home2/pls32/DATA/PS2/hg19 /home2/pls32/Project/RNA_Seq_DATA/K562shRNARep1.fastq
+cd /home2/pls32/Project/RNA_Seq_DATA; source /home2/pls32/.bashrc; tophat -p 4 -G /home2/pls32/Project/RNA_Seq_DATA/hg19_genes.gtf --transcriptome-index=transcriptome_data/known -o K562shRNARep2_output /home2/pls32/DATA/PS2/hg19 /home2/pls32/Project/RNA_Seq_DATA/K562shRNARep2.fastq
+cd /home2/pls32/Project/RNA_Seq_DATA; source /home2/pls32/.bashrc; tophat -p 4 -G /home2/pls32/Project/RNA_Seq_DATA/hg19_genes.gtf --transcriptome-index=transcriptome_data/known -o GM12878Rep1_output /home2/pls32/DATA/PS2/hg19 /home2/pls32/Project/GM12878Rep1.fastq
+cd /home2/pls32/Project/RNA_Seq_DATA; source /home2/pls32/.bashrc; tophat -p 4 -G /home2/pls32/Project/RNA_Seq_DATA/hg19_genes.gtf --transcriptome-index=transcriptome_data/known -o GM12878ep2_output /home2/pls32/DATA/PS2/hg19 /home2/pls32/Project/GM12878Rep2.fastq
+
+The above lines were submitted as jobs to simpleque for the alignment
+
+The next step was for thecuffdiff allignment in which I rant three separate analysis, the K652 Uninduced vs the K652 shRNA knockdown for SRF
+the K562 vs GM12878 as well as all three compared against each other 
+
+
+cd /home2/pls32/Project/RNA_Seq_DATA; source /home2/pls32/.bashrc; cuffdiff -p 4 -o K562UninducedvshRNA_cuffdiff_output /home2/pls32/Project/RNA_Seq_DATA/hg19_genes.gtf -L Uninduced,shRNA K562UninducedRep1_output/accepted_hits.bam,K562UninducedRep1_output/accepted_hits.bam K562shRNARep1_output/accepted_hits.bam,K562shRNARep2_output/accepted_hits.bam 
+cd /home2/pls32/Project/RNA_Seq_DATA; source /home2/pls32/.bashrc; cuffdiff -p 4 -o K562vshRNAvGM12878_cuffdiff_output /home2/pls32/Project/RNA_Seq_DATA/hg19_genes.gtf -L K562,shRNAK562,GM12878 K562UninducedRep1_output/accepted_hits.bam,K562UninducedRep1_output/accepted_hits.bam K562shRNARep1_output/accepted_hits.bam,K562shRNARep2_output/accepted_hits.bam GM3a_output/accepted_hits.bam,GM3b_output/accepted_hits.bam 
+cd /home2/pls32/Project/RNA_Seq_DATA; source /home2/pls32/.bashrc; cuffdiff -p 4 -o K562vsGM12878_cuffdiff_output /home2/pls32/Project/RNA_Seq_DATA/hg19_genes.gtf -L K562,GM12878 K562UninducedRep1_output/accepted_hits.bam,K562UninducedRep1_output/accepted_hits.bam GM12878Rep1_output/accepted_hits.bam,GM12878ARep2_output/accepted_hits.bam 
+
+-> in cuffdiff command the samples are separated by a space and the replicates are separated by commas
+-> these were submitted to simpleque as well 
+
+The analysis to make heatmaps was done in R and attached as Heatmaps_ScatterPlot_Sulkowski.R
+
+
+
+
+

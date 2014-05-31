@@ -1,0 +1,72 @@
+1. Download SRF ChIP-seq and DHS data from UCSC for GM12878 cell line
+	https://genome.ucsc.edu/ENCODE/downloads.html
+	SRF ChIP-seq
+		wget http://hgdownload.cse.ucsc.edu/goldenPath/hg19/encodeDCC/wgEncodeHaibTfbs/wgEncodeHaibTfbsGm12878SrfV0416101RawDataRep1.fastq.gz
+		wget http://hgdownload.cse.ucsc.edu/goldenPath/hg19/encodeDCC/wgEncodeHaibTfbs/wgEncodeHaibTfbsGm12878SrfV0416101RawDataRep2.fastq.gz
+		Use the gunzip command to unzip the files
+	DHS data
+		http://hgdownload.cse.ucsc.edu/goldenPath/hg19/encodeDCC/wgEncodeOpenChromDnase/
+		http://hgdownload.cse.ucsc.edu/goldenPath/hg19/encodeDCC/wgEncodeOpenChromDnase/wgEncodeOpenChromDnaseGm12878Pk.narrowPeak.gz
+	Use gunzip command to get fastq files
+	OUTPUT files
+		GM_SRF_1.fastq
+		GM_SRF_2.fastq
+
+				
+2. Download histone modifications from UCSC
+	http://hgdownload.cse.ucsc.edu/goldenPath/hg19/encodeDCC/wgEncodeBroadHistone/
+	H3K4me3
+		wget http://hgdownload.cse.ucsc.edu/goldenPath/hg19/encodeDCC/wgEncodeBroadHistone/wgEncodeBroadHistoneGm12878H3k4me3StdRawDataRep1.fastq.gz
+		wget http://hgdownload.cse.ucsc.edu/goldenPath/hg19/encodeDCC/wgEncodeBroadHistone/wgEncodeBroadHistoneGm12878H3k4me3StdRawDataRep2.fastq.gz
+	H3K27ac
+		wget http://hgdownload.cse.ucsc.edu/goldenPath/hg19/encodeDCC/wgEncodeBroadHistone/wgEncodeBroadHistoneGm12878H3k27acStdRawDataRep1.fastq.gz
+		wget http://hgdownload.cse.ucsc.edu/goldenPath/hg19/encodeDCC/wgEncodeBroadHistone/wgEncodeBroadHistoneGm12878H3k27acStdRawDataRep2.fastq.gz
+	Use gunzip command to get fastq files
+	OUTPUT files
+		GM_H3K4_1.fastq
+		GM_H3K4_2.fastq
+		GM_H3K27_1.fastq
+		GM_H3K27_2.fastq
+		
+	
+4. Align reads to the hg19 reference genome
+	Final_simplequeue.txt file
+		cd /home2/gm359/Final_Project; source /home2/gm359/.bashrc; bowtie -m 1 -S -n 2 -p 4 /home2/gm359/DATA/PS2/hg19 /home2/gm359/Final_Project/GM_SRF_1.fastq GM_SRF_1_aligned.sam
+		cd /home2/gm359/Final_Project; source /home2/gm359/.bashrc; bowtie -m 1 -S -n 2 -p 4 /home2/gm359/DATA/PS2/hg19 /home2/gm359/Final_Project/GM_SRF_2.fastq GM_SRF_2_aligned.sam
+		cd /home2/gm359/Final_Project; source /home2/gm359/.bashrc; bowtie -m 1 -S -n 2 -p 4 /home2/gm359/DATA/PS2/hg19 /home2/gm359/Final_Project/GM_H3K4_1.fastq GM_H3K4_1_aligned.sam
+		cd /home2/gm359/Final_Project; source /home2/gm359/.bashrc; bowtie -m 1 -S -n 2 -p 4 /home2/gm359/DATA/PS2/hg19 /home2/gm359/Final_Project/GM_H3K4_2.fastq GM_H3K4_2_aligned.sam
+		cd /home2/gm359/Final_Project; source /home2/gm359/.bashrc; bowtie -m 1 -S -n 2 -p 4 /home2/gm359/DATA/PS2/hg19 /home2/gm359/Final_Project/GM_H3K27_1.fastq GM_H3K27_1_aligned.sam
+		cd /home2/gm359/Final_Project; source /home2/gm359/.bashrc; bowtie -m 1 -S -n 2 -p 4 /home2/gm359/DATA/PS2/hg19 /home2/gm359/Final_Project/GM_H3K27_2.fastq GM_H3K27_2_aligned.sam
+	Command for simplequeue
+		/usr/local/cluster/software/installation/SimpleQueue/sqPBS.py def 6.6 gm359 GM Final_simplequeue.txt | qsub -m abe -M gyongju.min@yale.edu
+	OUTPUT files
+		GM_SRF_1_aligned.sam
+		GM_SRF_2_aligned.sam
+		GM_H3K4_1_aligned.sam
+		GM_H3K4_2_aligned.sam
+		GM_H3K27_1_aligned.sam
+		GM_H3K27_2_aligned.sam
+	
+	
+5. Call peaks with macs
+	Command for macs
+		macs14 --nomodel -t /home2/gm359/Final_Project/GM_SRF_1_aligned.sam -f SAM -g hs -w -S -n peak_GM_SRF_1
+		macs14 --nomodel -t /home2/gm359/Final_Project/GM_SRF_2_aligned.sam -f SAM -g hs -w -S -n peak_GM_SRF_2
+		macs14 --nomodel --nolambda -t /home2/gm359/Final_Project/GM_H3K4_1_aligned.sam -f SAM -g hs -w -S -n peak_GM_H3K4_1
+		macs14 --nomodel --nolambda -t /home2/gm359/Final_Project/GM_H3K4_2_aligned.sam -f SAM -g hs -w -S -n peak_GM_H3K4_2
+		macs14 --nomodel --nolambda -t /home2/gm359/Final_Project/GM_H3K27_1_aligned.sam -f SAM -g hs -w -S -n peak_GM_H3K27_1
+		macs14 --nomodel --nolambda -t /home2/gm359/Final_Project/GM_H3K27_2_aligned.sam -f SAM -g hs -w -S -n peak_GM_H3K27_2
+	OUTPUT files
+		peak_GM_SRF_1_peaks.bed
+		peak_GM_SRF_2_peaks.bed
+		peak_GM_H3K4_1_peaks.bed
+		peak_GM_H3K4_2_peaks.bed
+		peak_GM_H3K27_1_peaks.bed
+		peak_GM_H3K27_2_peaks.bed
+
+		
+6. DAVID GO analysis
+	Upload up-regulated genes for each cell line to obtain a list of biological processes (functional annotation chart)
+	OUTPUT files
+		GO_FAC_K562.txt
+		GO_FAC_GM.txt

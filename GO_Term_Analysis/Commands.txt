@@ -1,0 +1,50 @@
+# Downloading the K562 SRF ChIP-seq files on to LOUISE
+wget http://hgdownload.cse.ucsc.edu/goldenPath/hg19/encodeDCC/wgEncodeHaibTfbs/wgEncodeHaibTfbsK562SrfV0416101RawDataRep1.fastq.gz
+wget http://hgdownload.cse.ucsc.edu/goldenPath/hg19/encodeDCC/wgEncodeHaibTfbs/wgEncodeHaibTfbsK562SrfV0416101RawDataRep2.fastq.gz
+These files are in the .fastq format, and needs to be properly called. 
+
+# Download the following
+wget http://hgdownload.cse.ucsc.edu/goldenPath/hg19/encodeDCC/wgEncodeOpenChromDnase/wgEncodeOpenChromDnaseK562Pk.narrowPeak.gz
+wget http://hgdownload.cse.ucsc.edu/goldenPath/hg19/encodeDCC/wgEncodeOpenChromDnase/wgEncodeOpenChromDnaseK562PkV2.narrowPeak.gz (a later version) 
+I downloaded version 2, since it seemed to be the latest version. 
+
+# Looking for histone mods. 
+Currently downloading: http://hgdownload.cse.ucsc.edu/goldenPath/hg18/encodeDCC/wgEncodeBroadChipSeq/wgEncodeBroadChipSeqAlignmentsRep2K562H3k27ac.tagAlign.gz
+To see what the zipped files contain. We will need input for everything. 
+But tagAlign is in the bed format, so it will not work. 
+
+# Got input fastq files from Problem_set_2.
+H3K4ME1
+wget http://hgdownload.cse.ucsc.edu/goldenPath/hg19/encodeDCC/wgEncodeSydhHistone/wgEncodeSydhHistoneK562H3k4me1UcdRawDataRep1.fastq.gz
+wget http://hgdownload.cse.ucsc.edu/goldenPath/hg19/encodeDCC/wgEncodeSydhHistone/wgEncodeSydhHistoneK562H3k4me1UcdRawDataRep2.fastq.gz
+
+H3K4ME4
+wget http://hgdownload.cse.ucsc.edu/goldenPath/hg19/encodeDCC/wgEncodeSydhHistone/wgEncodeSydhHistoneK562H3k4me3bUcdRawDataRep1.fastq.gz
+wget http://hgdownload.cse.ucsc.edu/goldenPath/hg19/encodeDCC/wgEncodeSydhHistone/wgEncodeSydhHistoneK562H3k4me3bUcdRawDataRep2.fastq.gz
+
+H3K27AC
+wget http://hgdownload.cse.ucsc.edu/goldenPath/hg19/encodeDCC/wgEncodeBroadHistone/wgEncodeBroadHistoneK562H3k27acStdRawDataRep1.fastq.gz
+wget http://hgdownload.cse.ucsc.edu/goldenPath/hg19/encodeDCC/wgEncodeBroadHistone/wgEncodeBroadHistoneK562H3k27acStdRawDataRep2.fastq.gz
+
+# All files were uploaded in LOUISE: /home2/nr267/Final_Project
+# All are zipped .gz files
+> gunzip *.gz # To unzip all files in the same directory.
+
+# Need to get hg19 index files (hg19.1.ebwt, hg19.2.ebwt, hg19.3.ebwt, hg19.4.ebwt, hg19.rev.1.ebwt, hg19.rev.2.ebwt) 
+# from home/rs785/DATA
+
+# Commands for mapping the samples for K562
+> cd /home2/nr267/Final_Project; source ~/.bashrc; bowtie -n 2 -m 1 -p 4 /home2/nr267/Final_Project/hg19 /home2/nr267/Final_Project/sample.fastq -S
+> sample.sam; samtools view -b -S sample.sam > sample.bam; samtools sort sample.bam sample_sort; samtools index sample_sort.bam sample_sort.bam.bai
+
+# The above commands were written for each sample and its replicate, put in a tasks file (Mapping1.simplequeue) and ran using SimpleQueue as follows:
+> /usr/local/cluster/software/installation/SimpleQueue/sqPBS.py def 8.1 nr267 Mapping1 Mapping1.simplequeue | qsub -M nur-taz.rahman@yale.edu -m abe
+
+# Similarly, peaks were called from .BAM files using MACS for each sample and each replicate. 
+# A tasks file was written with MACS commands for each, and run as above, using simplequeue. 
+> macs14 --nomodel --nolambda -t /path/to/treat.bam -c /path/to/control.bam -f BAM -g hs -w -S -n experimentName
+
+# Obtain the common peaks between the two replicates
+> bedtools intersect -a K562_Srf_Rep1_peaks.bed -b K562_Srf_Rep2_peaks.bed > K562_Srf.bed
+
+
