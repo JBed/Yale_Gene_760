@@ -1,11 +1,9 @@
-Team3
+Yale_Gene_760
 =====
 
-Team #3 Gene 760 Final Project perl scripts.
+A repository of my work for the Yale course Gene 760: Genomic Methods for Genetic Analysis.
 
---
 
-This report contains your write up as well as all a summary of commands necessary to repeat this analysis.
 
 
 
