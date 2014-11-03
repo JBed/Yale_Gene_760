@@ -1,0 +1,11 @@
+My nser: Reported 9921472 alignments to 1 output stream(s)
+
+there answer:
+Reported 6326092 alignments to 1 output stream(s)
+K562_H3K27ac: 6326092\
+
+
+bowtie -v 2 -m 1 hg19 K562_H3K27ac.fastq -S > K562_H3K27ac_align.sam >> log_K562_H3K27ac.txt\
+
+
+the problem is that the HW asks for uniquly mapping reads only
